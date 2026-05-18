@@ -17,7 +17,7 @@ export default function EquiposPage() {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const res  = await fetch('https://api-inazuma.onrender.com/equipos')
+        const res = await fetch(`${BASE_URL}/api/equipos/?limit=100`)
         const data = await res.json()
         setTeams(Array.isArray(data) ? data : (data.teams || []))
       } catch (err) {
@@ -76,28 +76,28 @@ export default function EquiposPage() {
       <div className={styles.grid}>
         {filtered.map(team => (
           <div
-            key={team._id}
+            key={team.slug}
             className={styles.card}
             onClick={() => setSelectedTeam(team)}
-            style={{ '--team-color': team.color_primary || '#3d7eff' }}
+            style={{ '--team-color': team.color_principal || '#3d7eff' }}
           >
             <div
               className={styles.cardBgImage}
-              style={{ backgroundImage: `url(${imgUrl(team.image)})` }}
+              style={{ backgroundImage: `url(${imgUrl(team.imagen)})` }}
             />
-            <div className={styles.cardOverlay} style={{ background: `linear-gradient(to top, ${team.color_primary || '#0a0e16'}ee 0%, ${team.color_primary || '#0a0e16'}88 50%, transparent 100%)` }} />
+            <div className={styles.cardOverlay} style={{ background: `linear-gradient(to top, ${team.color_principal || '#0a0e16'}ee 0%, ${team.color_principal || '#0a0e16'}88 50%, transparent 100%)` }} />
 
             <div className={styles.cardBody}>
               <div className={styles.cardInfo}>
-                <h3 className={styles.teamName}>{team.name}</h3>
-                {team.academy && (
+                <h3 className={styles.teamName}>{team.nombre}</h3>
+                {team.academia && (
                   <p className={styles.teamAcademy}>
-                    <Shield size={11} /> {team.academy}
+                    <Shield size={11} /> {team.academia}
                   </p>
                 )}
-                {team.country && (
+                {team.pais && (
                   <p className={styles.teamCountry}>
-                    <MapPin size={11} /> {team.country}
+                    <MapPin size={11} /> {team.pais}
                   </p>
                 )}
               </div>
@@ -105,7 +105,7 @@ export default function EquiposPage() {
               <div className={styles.cardFooter}>
                 <div className={styles.cardMeta}>
                   <span className={styles.metaChip}>
-                    <Users size={11} /> {team.players?.length || 0}
+                    <Users size={11} /> {team.jugadores?.length || 0}
                   </span>
                   {(team.seasons || []).map(s => (
                     <span key={s} className={styles.seasonChip} style={{ color: SEASON_COLORS[s] || '#888', borderColor: `${SEASON_COLORS[s] || '#888'}44`, background: `${SEASON_COLORS[s] || '#888'}12` }}>
@@ -127,11 +127,11 @@ export default function EquiposPage() {
 
             <div
               className={styles.modalHeader}
-              style={{ background: `linear-gradient(135deg, ${selectedTeam.color_primary || '#1e293b'}DD 0%, #0a0e16 100%)` }}
+              style={{ background: `linear-gradient(135deg, ${selectedTeam.color_principal || '#1e293b'}DD 0%, #0a0e16 100%)` }}
             >
-              <div className={styles.modalHeaderGlow} style={{ background: selectedTeam.color_primary || '#3d7eff' }} />
+              <div className={styles.modalHeaderGlow} style={{ background: selectedTeam.color_principal || '#3d7eff' }} />
               <div className={styles.modalLogoWrap}>
-                <img src={imgUrl(selectedTeam.image)} className={styles.modalLogo} alt={selectedTeam.name} />
+                <img src={imgUrl(selectedTeam.imagen)} className={styles.modalLogo} alt={selectedTeam.nombre} />
               </div>
               <div className={styles.modalHeaderText}>
                 <div className={styles.modalSeasons}>
@@ -141,11 +141,11 @@ export default function EquiposPage() {
                     </span>
                   ))}
                 </div>
-                <h2 className={styles.modalTitle}>{selectedTeam.name}</h2>
+                <h2 className={styles.modalTitle}>{selectedTeam.nombre}</h2>
                 <div className={styles.modalSubInfo}>
-                  {selectedTeam.academy && <span><Shield size={13} /> {selectedTeam.academy}</span>}
-                  {selectedTeam.country && <span><MapPin size={13} /> {selectedTeam.country}</span>}
-                  <span><Users size={13} /> {selectedTeam.players?.length || 0} jugadores</span>
+                  {selectedTeam.academia && <span><Shield size={13} /> {selectedTeam.academia}</span>}
+                  {selectedTeam.pais && <span><MapPin size={13} /> {selectedTeam.pais}</span>}
+                  <span><Users size={13} /> {selectedTeam.jugadores?.length || 0} jugadores</span>
                 </div>
               </div>
             </div>
@@ -155,8 +155,8 @@ export default function EquiposPage() {
                 <Zap size={13} style={{ color: '#ffaa00' }} /> PLANTILLA
               </p>
               <div className={styles.playerList}>
-                {selectedTeam.players && selectedTeam.players.length > 0 ? (
-                  selectedTeam.players.map((player) => (
+                {selectedTeam.jugadores && selectedTeam.jugadores.length > 0 ? (
+                  selectedTeam.jugadores.map((player) => (
                     <Link
                       key={player.id}
                       to={`/personajes/${player.id}`}

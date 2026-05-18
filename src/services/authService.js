@@ -6,13 +6,13 @@ export function getUser() {
 }
 
 export async function loginUser({ username, password }) {
-  const response = await fetch(`${BASE_URL}/iniciar_sesion`, {
+  const response = await fetch(`${BASE_URL}/api/login/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password })
   })
   const data = await response.json()
-  if (!response.ok) throw new Error(data.message || 'Error al iniciar sesion')
+  if (!response.ok) throw new Error(data.message || 'Error al iniciar sesión')
   localStorage.setItem('inazuma-token', data.token)
   localStorage.setItem('inazuma-user', JSON.stringify(data.usuario))
   window.dispatchEvent(new Event('auth-change'))
@@ -20,14 +20,17 @@ export async function loginUser({ username, password }) {
 }
 
 export async function registerUser({ username, email, password, confirm_password }) {
-  const response = await fetch(`${BASE_URL}/registrar`, {
+  const response = await fetch(`${BASE_URL}/api/registro/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, email, password, confirm_password })
   })
   const data = await response.json()
   if (!response.ok) throw new Error(data.message || 'Error en el registro')
-  return data
+  localStorage.setItem('inazuma-token', data.token)
+  localStorage.setItem('inazuma-user', JSON.stringify(data.usuario))
+  window.dispatchEvent(new Event('auth-change'))
+  return data.usuario
 }
 
 export function logoutUser() {

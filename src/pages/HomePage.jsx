@@ -14,10 +14,10 @@ const TYPE_COLORS = { Tiro: '#ff6b35', Parada: '#3d7eff', Regate: '#36d399', Def
 
 function TechFavCard({ tech }) {
   const [open, setOpen] = useState(false)
-  const color        = getElementColor(tech.element)
+  const color        = getElementColor(tech.elemento)
   const translated   = TYPE_MAP[tech.type] || tech.type
   const typeColor    = TYPE_COLORS[translated] || '#888'
-  const powerPct     = Math.min(((tech.basePower || 0) / 120) * 100, 100)
+  const powerPct     = Math.min(((tech.poder_base || 0) / 120) * 100, 100)
 
   return (
     <>
@@ -28,16 +28,16 @@ function TechFavCard({ tech }) {
             <span className={styles.techFavDot} style={{ background: typeColor }} />
             {translated.toUpperCase()}
           </span>
-          <span className={styles.techFavEl} style={{ background: `${color}22`, color }}>{tech.element}</span>
+          <span className={styles.techFavEl} style={{ background: `${color}22`, color }}>{tech.elemento}</span>
         </div>
         <div className={styles.techFavNames}>
-          <h4 className={styles.techFavName}>{tech.name}</h4>
+          <h4 className={styles.techFavName}>{tech.nombre}</h4>
           {tech.japaneseName && <p className={styles.techFavJa}>{tech.japaneseName}</p>}
         </div>
         <div className={styles.techFavBar}>
           <div className={styles.techFavBarMeta}>
             <span className={styles.techFavBarLabel}>POTENCIA</span>
-            <span className={styles.techFavBarNum} style={{ color }}>{tech.basePower}</span>
+            <span className={styles.techFavBarNum} style={{ color }}>{tech.poder_base}</span>
           </div>
           <div className={styles.techFavBarTrack}>
             <div className={styles.techFavBarFill} style={{ width: `${powerPct}%`, background: `linear-gradient(90deg, ${color}88, ${color})` }} />
@@ -52,16 +52,16 @@ function TechFavCard({ tech }) {
             <div className={styles.techModalHeader} style={{ background: `linear-gradient(135deg, ${color}CC 0%, #0f172a 100%)` }}>
               <div className={styles.techModalGlow} style={{ background: color }} />
               <div>
-                <span className={styles.techModalType}>{tech.element} · {translated.toUpperCase()}</span>
-                <h2 className={styles.techModalTitle}>{tech.name}</h2>
+                <span className={styles.techModalType}>{tech.elemento} · {translated.toUpperCase()}</span>
+                <h2 className={styles.techModalTitle}>{tech.nombre}</h2>
                 <p className={styles.techModalSub}>{tech.japaneseName}</p>
               </div>
             </div>
             <div className={styles.techModalBody}>
-              {tech.videoUrl ? (
+              {tech.video_url ? (
                 <div className={styles.techVideoWrap}>
-                  <video key={tech.videoUrl} autoPlay loop playsInline className={styles.techVideo}>
-                    <source src={imgUrl(tech.videoUrl)} type="video/mp4" />
+                  <video key={tech.video_url} autoPlay loop playsInline className={styles.techVideo}>
+                    <source src={imgUrl(tech.video_url)} type="video/mp4" />
                   </video>
                 </div>
               ) : (
@@ -69,17 +69,17 @@ function TechFavCard({ tech }) {
               )}
               <div className={styles.techModalStats}>
                 <div className={styles.techStatBox}>
-                  <span className={styles.techStatVal}>{tech.basePower}</span>
+                  <span className={styles.techStatVal}>{tech.poder_base}</span>
                   <span className={styles.techStatLbl}>POTENCIA</span>
                 </div>
                 <div className={styles.techStatBox}>
-                  <span className={styles.techStatVal}>{tech.cost?.tension || 0}</span>
+                  <span className={styles.techStatVal}>{tech.coste_tension || 0}</span>
                   <span className={styles.techStatLbl}>TENSIÓN</span>
                 </div>
               </div>
               <div className={styles.techModalCost}>
                 <Activity size={14} />
-                <span>Requiere {tech.cost?.stamina || 0} PE de Resistencia</span>
+                <span>Requiere {tech.coste_stamina || 0} PE de Resistencia</span>
               </div>
             </div>
           </div>
@@ -121,16 +121,18 @@ export default function HomePage() {
 
     async function loadAll() {
       const { user: su, token } = getStoredSession()
-      const userId = su?.id || su?._id
 
       try {
-        const [allPlayers, allTecnicas, allTeams, userRes] = await Promise.all([
-          getAllPlayers(), 
-          fetch(`${BASE_URL}/tecnicas`).then(r => r.json()),
-          fetch(`${BASE_URL}/equipos`).then(r => r.json()), 
-          userId ? fetch(`${BASE_URL}/obtener_usuario/${userId}`, {
-            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-          }) : Promise.resolve(null)
+        const [allPlayers, allTecnicas, allTeams, favsRes, favTecRes] = await Promise.all([
+          getAllPlayers(),
+          fetch(`${BASE_URL}/api/tecnicas/?limit=500`).then(r => r.json()),
+          fetch(`${BASE_URL}/api/equipos/`).then(r => r.json()),
+          token ? fetch(`${BASE_URL}/api/favoritos/`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }) : Promise.resolve({ ok: false, json: async () => [] }),
+          token ? fetch(`${BASE_URL}/api/favoritos/tecnicas/`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }) : Promise.resolve({ ok: false, json: async () => [] })
         ])
 
         if (cancelled) return
@@ -139,22 +141,18 @@ export default function HomePage() {
           setTeams(allTeams)
         }
 
-        if (userRes && userRes.ok) {
-          const userData = await userRes.json()
-          if (userData.usuario) {
-            const favIds = userData.usuario.favoritos || []
-            setFavoriteCharacters(
-              allPlayers.filter(c => favIds.includes(c._id) || favIds.includes(c.id))
-            )
+        const favSlugs    = favsRes && favsRes.ok ? await favsRes.json() : []
+        const favTecSlugs = favTecRes && favTecRes.ok ? await favTecRes.json() : []
 
-            const favTecIds = userData.usuario.favoritos_tecnicas || []
-            setFavTecnicas(
-              Array.isArray(allTecnicas)
-                ? allTecnicas.filter(t => favTecIds.includes(t._id))
-                : []
-            )
-          }
-        }
+        setFavoriteCharacters(
+          allPlayers.filter(c => favSlugs.some(f => f.slug === c.slug))
+        )
+
+        setFavTecnicas(
+          Array.isArray(allTecnicas)
+            ? allTecnicas.filter(t => favTecSlugs.some(f => f.slug === t.slug))
+            : []
+        )
       } catch (err) {
         console.error('Error cargando datos:', err)
       } finally {
@@ -244,7 +242,7 @@ export default function HomePage() {
         ) : (
           <div className={styles.techFavGrid}>
             {favTecnicas.map(tech => (
-              <TechFavCard key={tech._id} tech={tech} />
+              <TechFavCard key={tech.slug} tech={tech} />
             ))}
           </div>
         )}

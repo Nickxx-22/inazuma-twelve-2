@@ -36,7 +36,7 @@ export default function TecnicasPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res  = await fetch(`${BASE_URL}/tecnicas`)
+        const res = await fetch(`${BASE_URL}/api/tecnicas/?limit=500`)
         if (!res.ok) throw new Error('Error API')
         const data = await res.json()
         setTechniques(data)
@@ -70,10 +70,10 @@ export default function TecnicasPage() {
 
     setLikingId(tecnicaId)
     try {
-      const res  = await fetch(`${BASE_URL}/toggle_favorito_tecnica`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body:    JSON.stringify({ user_id: userId, tecnica_id: tecnicaId })
+      const res = await fetch(`${BASE_URL}/api/favoritos/tecnicas/toggle/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ slug: tecnicaId })
       })
       const data = await res.json()
       if (res.ok) {
@@ -95,12 +95,12 @@ export default function TecnicasPage() {
       const q = search.toLowerCase()
       const translatedType = TYPE_MAP[t.type] || t.type
       return (
-        (!search        || t.name.toLowerCase().includes(q) || (t.japaneseName && t.japaneseName.toLowerCase().includes(q))) &&
-        (!elementFilter || t.element === elementFilter) &&
+        (!search        || t.nombre.toLowerCase().includes(q) || (t.japaneseName && t.japaneseName.toLowerCase().includes(q))) &&
+        (!elementFilter || t.elemento === elementFilter) &&
         (!typeFilter    || translatedType === typeFilter)
       )
     }).sort((a, b) =>
-      sortBy === 'power' ? (b.basePower || 0) - (a.basePower || 0) : a.name.localeCompare(b.name)
+      sortBy === 'power' ? (b.poder_base || 0) - (a.poder_base || 0) : a.nombre.localeCompare(b.nombre)
     )
   }, [techniques, search, elementFilter, typeFilter, sortBy])
 
@@ -186,12 +186,12 @@ export default function TecnicasPage() {
           ? <EmptyState />
           : filtered.map(tech => (
               <TechniqueCard
-                key={tech._id}
+                key={tech.slug}
                 technique={tech}
-                isFav={favTecnicas.has(tech._id)}
-                isLiking={likingId === tech._id}
+                isFav={favTecnicas.has(tech.slug)}
+                isLiking={likingId === tech.slug}
                 onOpen={() => setSelectedTech(tech)}
-                onToggleFav={(e) => handleToggleFav(tech._id, e)}
+                onToggleFav={(e) => handleToggleFav(tech.slug, e)}
                 isLoggedIn={!!(user || getStoredSession().user)}
               />
             ))
@@ -204,47 +204,47 @@ export default function TecnicasPage() {
             <button className={styles.closeBtn} onClick={() => setSelectedTech(null)}><X size={20} /></button>
             <div
               className={styles.modalHeader}
-              style={{ background: `linear-gradient(135deg, ${getElementColor(selectedTech.element)}CC 0%, #0f172a 100%)` }}
+              style={{ background: `linear-gradient(135deg, ${getElementColor(selectedTech.elemento)}CC 0%, #0f172a 100%)` }}
             >
-              <div className={styles.modalHeaderGlow} style={{ background: getElementColor(selectedTech.element) }} />
+              <div className={styles.modalHeaderGlow} style={{ background: getElementColor(selectedTech.elemento) }} />
               <div className={styles.headerInfo}>
                 <span className={styles.typeBadge}>
-                  {selectedTech.element} · {(TYPE_MAP[selectedTech.type] || selectedTech.type).toUpperCase()}
+                  {selectedTech.elemento} · {(TYPE_MAP[selectedTech.type] || selectedTech.type).toUpperCase()}
                 </span>
-                <h2 className={styles.modalTitle}>{selectedTech.name}</h2>
+                <h2 className={styles.modalTitle}>{selectedTech.nombre}</h2>
                 <p className={styles.modalSub}>{selectedTech.japaneseName}</p>
               </div>
               <button
-                className={`${styles.modalFavBtn} ${favTecnicas.has(selectedTech._id) ? styles.modalFavActive : ''}`}
-                onClick={(e) => handleToggleFav(selectedTech._id, e)}
-                disabled={likingId === selectedTech._id}
+                className={`${styles.modalFavBtn} ${favTecnicas.has(selectedTech.slug) ? styles.modalFavActive : ''}`}
+                onClick={(e) => handleToggleFav(selectedTech.slug, e)}
+                disabled={likingId === selectedTech.slug}
               >
-                {likingId === selectedTech._id
+                {likingId === selectedTech.slug
                   ? <Loader2 size={20} className={styles.spin} />
-                  : <Heart size={20} fill={favTecnicas.has(selectedTech._id) ? 'currentColor' : 'none'} />
+                  : <Heart size={20} fill={favTecnicas.has(selectedTech.slug) ? 'currentColor' : 'none'} />
                 }
               </button>
             </div>
             <div className={styles.modalBody}>
               <div className={styles.videoContainer}>
-                <video key={selectedTech.videoUrl} autoPlay loop playsInline className={styles.mainVideo}>
-                  <source src={imgUrl(selectedTech.videoUrl)} type="video/mp4" />
+                <video key={selectedTech.video_url} autoPlay loop playsInline className={styles.mainVideo}>
+                  <source src={imgUrl(selectedTech.video_url)} type="video/mp4" />
                 </video>
               </div>
               <h4 className={styles.sectionTitle}><Zap size={14} /> ESTADISTICAS</h4>
               <div className={styles.statsGrid}>
                 <div className={styles.statBox}>
-                  <span className={styles.statValue}>{selectedTech.basePower}</span>
+                  <span className={styles.statValue}>{selectedTech.poder_base}</span>
                   <span className={styles.statLabel}>POTENCIA</span>
                 </div>
                 <div className={styles.statBox}>
-                  <span className={styles.statValue}>{selectedTech.cost?.tension || 0}</span>
+                  <span className={styles.statValue}>{selectedTech.coste_tension || 0}</span>
                   <span className={styles.statLabel}>TENSION</span>
                 </div>
               </div>
               <div className={styles.requirementRow}>
                 <Activity size={16} />
-                <span>Requiere {selectedTech.cost?.stamina || 0} PE de Resistencia</span>
+                <span>Requiere {selectedTech.coste_stamina || 0} PE de Resistencia</span>
               </div>
             </div>
           </div>
@@ -255,12 +255,12 @@ export default function TecnicasPage() {
 }
 
 function TechniqueCard({ technique, isFav, isLiking, onOpen, onToggleFav, isLoggedIn }) {
-  const color          = getElementColor(technique.element)
+  const color          = getElementColor(technique.elemento)
   const translatedType = TYPE_MAP[technique.type] || technique.type
   const typeColor      = TYPE_COLORS[translatedType] || '#888'
   const typeLabels     = { Tiro: 'SHOT', Parada: 'SAVE', Regate: 'DRIB', Defensa: 'DEF' }
   const typeLabel      = typeLabels[translatedType] ?? '??'
-  const powerPct       = Math.min((technique.basePower / 120) * 100, 100)
+  const powerPct       = Math.min((technique.poder_base / 120) * 100, 100)
 
   return (
     <div className={styles.techCard} onClick={onOpen}>
@@ -275,7 +275,7 @@ function TechniqueCard({ technique, isFav, isLiking, onOpen, onToggleFav, isLogg
           {typeLabel}
         </div>
         <div className={styles.techElementPill} style={{ background: `${color}22`, color }}>
-          {technique.element}
+          {technique.elemento}
         </div>
         <button
           className={`${styles.favBtn} ${isFav ? styles.favBtnActive : ''}`}
@@ -291,7 +291,7 @@ function TechniqueCard({ technique, isFav, isLiking, onOpen, onToggleFav, isLogg
       </div>
 
       <div className={styles.techNames}>
-        <h3 className={styles.techName}>{technique.name}</h3>
+        <h3 className={styles.techName}>{technique.nombre}</h3>
         {technique.japaneseName && <p className={styles.techJa}>{technique.japaneseName}</p>}
       </div>
 
@@ -299,7 +299,7 @@ function TechniqueCard({ technique, isFav, isLiking, onOpen, onToggleFav, isLogg
         <div className={styles.powerRowFull}>
           <div className={styles.powerMeta}>
             <span className={styles.powerLabel}>POTENCIA</span>
-            <span className={styles.powerNum} style={{ color }}>{technique.basePower}</span>
+            <span className={styles.powerNum} style={{ color }}>{technique.poder_base}</span>
           </div>
           <div className={styles.powerBarTrack}>
             <div
@@ -313,10 +313,10 @@ function TechniqueCard({ technique, isFav, isLiking, onOpen, onToggleFav, isLogg
         </div>
         <div className={styles.costRow}>
           <span className={styles.costChip}>
-            <Activity size={10} /> {technique.cost?.stamina || 0} PE
+            <Activity size={10} /> {technique.coste_stamina || 0} PE
           </span>
           <span className={styles.costChip}>
-            <Zap size={10} /> {technique.cost?.tension || 0} PT
+            <Zap size={10} /> {technique.coste_tension || 0} PT
           </span>
         </div>
       </div>

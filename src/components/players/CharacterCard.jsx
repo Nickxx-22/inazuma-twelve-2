@@ -4,17 +4,17 @@ import { imgUrl } from '../../config'
 import styles from './CharacterCard.module.css'
 
 export default function CharacterCard({ character }) {
-  const elColor  = getElementColor(character.element)
-  const natColor = getNatureColor(character.nature)
+  const elColor  = getElementColor(character.elemento)
+  const natColor = getNatureColor(character.naturaleza)
 
   return (
     <Link to={`/personajes/${character.id}`} className={styles.link}>
       <div className={`${styles.card} card-hover`}>
 
         <div className={styles.imageArea}>
-          <img src={imgUrl(character.image)} alt={character.name} className={styles.characterImage} />
+          <img src={imgUrl(character.image)} alt={character.nombre} className={styles.characterImage} />
           <div className={styles.overlay} style={{ background: `linear-gradient(135deg, ${elColor}22, ${natColor}22)` }} />
-          <span className={styles.natureBadge} style={{ background: natColor }}>{character.nature}</span>
+          <span className={styles.natureBadge} style={{ background: natColor }}>{character.naturaleza}</span>
           <div className={styles.positionBadge}>
             {character.positionImg
               ? <img src={imgUrl(character.positionImg)} alt={character.position} className={styles.positionImg} title={character.position} />
@@ -26,11 +26,8 @@ export default function CharacterCard({ character }) {
         <div className={styles.info}>
           {/* Nombre + PWR en la misma fila */}
           <div className={styles.nameRow}>
-            <h3 className={styles.name}>{character.name}</h3>
-            <div className={styles.powerBadge}>PWR {character.power}</div>
-          </div>
-
-          {/* Fila inferior: role+país izq, elemento+bandera der */}
+            <h3 className={styles.name}>{character.nombre}</h3>
+            <div className={styles.powerBadge}>PWR {character.poder}</div>
           <div className={styles.bottomRow}>
             <div className={styles.roleCol}>
               <span className={styles.roleText}>{character.role}</span>
@@ -38,8 +35,8 @@ export default function CharacterCard({ character }) {
             </div>
             <div className={styles.iconsRow}>
               {character.elementImg
-                ? <img src={imgUrl(character.elementImg)} alt={character.element} className={styles.elementImg} title={character.element} />
-                : <div className={styles.elementDot} style={{ background: elColor }}>{character.element.charAt(0)}</div>
+                ? <img src={imgUrl(character.elementImg)} alt={character.elemento} className={styles.elementImg} title={character.elemento} />
+                : <div className={styles.elementDot} style={{ background: elColor }}>{character.elemento.charAt(0)}</div>
               }
               {character.countryImg && (
                 <img src={imgUrl(character.countryImg)} alt={character.country || ''} className={styles.flagBadge} title={character.country} />

@@ -33,7 +33,7 @@ export default function PersonajeDetailPage() {
   useEffect(() => {
     async function fetchCharacter() {
       try {
-        const res = await fetch(`${BASE_URL}/jugadores/${id}`)
+        const res = await fetch(`${BASE_URL}/api/personajes/${id}/`)
         if (!res.ok) throw new Error("Error al cargar el jugador")
         const data = await res.json()
         
@@ -45,7 +45,7 @@ export default function PersonajeDetailPage() {
           const imgs = {}
           await Promise.all(teamIds.map(async tid => {
             try {
-              const tr = await fetch(`${BASE_URL}/equipos/${tid}`)
+              const tr = await fetch(`${BASE_URL}/api/equipos/${tid}/`)
               if (tr.ok) {
                 const td = await tr.json()
                 imgs[tid] = td.image?.url || ''
@@ -57,7 +57,11 @@ export default function PersonajeDetailPage() {
 
         if (user && data.character) {
             const userId = user.id || user._id;
-            const userRes = await fetch(`${BASE_URL}/obtener_usuario/${userId}`);
+            const userRes = await fetch(`${BASE_URL}/api/favoritos/`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+            const favs = await userRes.json()
+            setIsFavorite(favs.some(f => f.slug === id))
             const userData = await userRes.json();
             if (userRes.ok) {
                 const favs = userData.usuario.favoritos || [];
@@ -84,13 +88,13 @@ export default function PersonajeDetailPage() {
     
     setIsLiking(true);
     try {
-        const res = await fetch(`${BASE_URL}/toggle_favorito`, {
+        const res = await fetch(`${BASE_URL}/api/favoritos/toggle/`, {
           method: 'POST',
           headers: { 
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ user_id: userId, personaje_id: id }) 
+          body: JSON.stringify({ slug: id }) 
         });
 
       const data = await res.json();
@@ -114,8 +118,8 @@ export default function PersonajeDetailPage() {
     </div>
   )
 
-  const elColor  = getElementColor(character.element)
-  const natColor = getNatureColor(character.nature)
+  const elColor  = getElementColor(character.elemento)
+  const natColor = getNatureColor(character.naturaleza)
 
   const radarData = {
     labels: ['Tiro', 'Físico', 'Control', 'Defensa', 'Velocidad', 'Técnica'],
@@ -123,12 +127,12 @@ export default function PersonajeDetailPage() {
       {
         label: 'Stats Base',
         data: [
-          character.stats?.kicking || 0,
-          character.stats?.physique || 0,
+          character.stats?.remate || 0,
+          character.stats?.fisico || 0,
           character.stats?.control || 0,
-          character.stats?.defense || 0,
-          character.stats?.agility || 0,
-          character.stats?.technique || 0,
+          character.stats?.defensa || 0,
+          character.stats?.agilidad || 0,
+          character.stats?.tecnica || 0,
         ],
         backgroundColor: `${elColor}44`,
         borderColor: elColor,
@@ -153,15 +157,15 @@ export default function PersonajeDetailPage() {
   }
 
   const statEntries = [
-    { name: 'Tiro', value: character.stats?.kicking },
-    { name: 'Cuerpo', value: character.stats?.physique },
+    { name: 'Tiro', value: character.stats?.remate },
+    { name: 'Cuerpo', value: character.stats?.fisico },
     { name: 'Control', value: character.stats?.control },
     { name: 'Parada', value: character.stats?.pressure },
-    { name: 'Velocidad', value: character.stats?.agility },
-    { name: 'Técnica', value: character.stats?.technique },
-    { name: 'Inteligencia', value: character.stats?.intelligence },
-    { name: 'Defensa', value: character.stats?.defense },
-    { name: 'Disputa', value: character.stats?.dispute },
+    { name: 'Velocidad', value: character.stats?.agilidad },
+    { name: 'Técnica', value: character.stats?.tecnica },
+    { name: 'Inteligencia', value: character.stats?.inteligencia },
+    { name: 'Defensa', value: character.stats?.defensa },
+    { name: 'Disputa', value: character.stats?.disputa },
   ]
 
   return (
@@ -174,10 +178,10 @@ export default function PersonajeDetailPage() {
         <aside className={styles.aside}>
           <div className={styles.card}>
             <div className={styles.avatarArea} style={{ background: `linear-gradient(135deg, ${elColor}33, ${natColor}33)` }}>
-              <img src={imgUrl(character.image)} alt={character.name} className={styles.characterImg} />
+              <img src={imgUrl(character.image)} alt={character.nombre} className={styles.characterImg} />
               <div className={styles.topBadges}>
                 <span className={styles.badge} style={{ background: natColor }}>
-                  {character.nature?.toUpperCase()}
+                  {character.naturaleza?.toUpperCase()}
                 </span>
                 {character.positionImg
                   ? <img src={imgUrl(character.positionImg)} alt={character.position} className={styles.positionBadgeImg} title={character.position} />
@@ -187,18 +191,18 @@ export default function PersonajeDetailPage() {
             </div>
 
             <div className={styles.cardBody}>
-              <h1 className={styles.name}>{character.name}</h1>
+              <h1 className={styles.name}>{character.nombre}</h1>
               <p className={styles.jaName}>{character.japaneseName}</p>
 
               <div className={styles.tags}>
                 {character.elementImg
                   ? (
                     <span className={styles.tagElement} style={{ borderColor: `${elColor}55`, background: `${elColor}18` }}>
-                      <img src={imgUrl(character.elementImg)} alt={character.element} className={styles.tagElementImg} />
-                      <span style={{ color: elColor }}>{character.element}</span>
+                      <img src={imgUrl(character.elementImg)} alt={character.elemento} className={styles.tagElementImg} />
+                      <span style={{ color: elColor }}>{character.elemento}</span>
                     </span>
                   ) : (
-                    <span className={styles.tag} style={{ background: elColor }}>{character.element}</span>
+                    <span className={styles.tag} style={{ background: elColor }}>{character.elemento}</span>
                   )
                 }
                 <span className={`${styles.tag} ${styles.tagSecondary}`}>{character.role}</span>
@@ -236,7 +240,7 @@ export default function PersonajeDetailPage() {
               
               <div className={styles.powerRow}>
                 <div className={styles.powerBox}>
-                  <span className={styles.powerNum}>{character.power}</span>
+                  <span className={styles.powerNum}>{character.poder}</span>
                   <small>POTENCIA</small>
                 </div>
                 <button 
@@ -294,16 +298,16 @@ export default function PersonajeDetailPage() {
               {techniques.map(tech => (
                 <div key={tech.id} className={styles.techWrapper}>
                   <div 
-                    className={`${styles.techItem} ${tech.videoUrl ? styles.hasVideo : ''}`}
-                    onClick={() => tech.videoUrl && setSelectedTech(tech)}
+                    className={`${styles.techItem} ${tech.video_url ? styles.hasVideo : ''}`}
+                    onClick={() => tech.video_url && setSelectedTech(tech)}
                   >
                     <div className={styles.techMainInfo}>
-                      <span className={styles.techName}>{tech.name}</span>
-                      <span className={styles.techSub}>{tech.type} | {tech.element}</span>
+                      <span className={styles.techName}>{tech.nombre}</span>
+                      <span className={styles.techSub}>{tech.type} | {tech.elemento}</span>
                     </div>
                     <div className={styles.techRight}>
                       <span className={styles.finalPower}>{tech.finalPower} <small>PWR</small></span>
-                      {tech.videoUrl && <Play size={14} className={styles.playIcon} fill="currentColor" />}
+                      {tech.video_url && <Play size={14} className={styles.playIcon} fill="currentColor" />}
                     </div>
                   </div>
                 </div>
@@ -317,12 +321,12 @@ export default function PersonajeDetailPage() {
         <div className={styles.modalOverlay} onClick={() => setSelectedTech(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <button className={styles.closeModal} onClick={() => setSelectedTech(null)}><X size={20} /></button>
-            <div className={styles.modalHeader} style={{ background: `linear-gradient(135deg, ${getElementColor(selectedTech.element)}CC, #1a1a2e)` }}>
-                <h2 className={styles.modalTechName}>{selectedTech.name}</h2>
+            <div className={styles.modalHeader} style={{ background: `linear-gradient(135deg, ${getElementColor(selectedTech.elemento)}CC, #1a1a2e)` }}>
+                <h2 className={styles.modalTechName}>{selectedTech.nombre}</h2>
             </div>
             <div className={styles.modalBody}>
-                <video key={selectedTech.videoUrl} autoPlay loop playsInline className={styles.modalVideo}>
-                  <source src={imgUrl(selectedTech.videoUrl)} type="video/mp4" />
+                <video key={selectedTech.video_url} autoPlay loop playsInline className={styles.modalVideo}>
+                  <source src={imgUrl(selectedTech.video_url)} type="video/mp4" />
                 </video>
                 <div className={styles.modalStatsSection}>
                     <div className={styles.modalStatBox}>

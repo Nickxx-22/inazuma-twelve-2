@@ -3,7 +3,7 @@
 // En desarrollo: 'http://127.0.0.1:5000'
 // En producción: 'https://api-inazuma.onrender.com'
 
-export const BASE_URL = 'https://api-inazuma.onrender.com'
+export const BASE_URL = import.meta.env.VITE_API_URL || 'https://inazuma-backend-c9on.onrender.com'
 
 /**
  * Convierte una ruta relativa de imagen/vídeo del backend

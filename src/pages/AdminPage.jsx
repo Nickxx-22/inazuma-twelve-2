@@ -131,7 +131,7 @@ export default function AdminPage() {
     setLoading(true)
     setError(null)
     try {
-      const res  = await fetch(`${BASE_URL}/admin/usuarios`, {
+      const res  = await fetch(`${BASE_URL}/api/admin/usuarios/`, {
         headers: { 'Authorization': `Bearer ${getToken()}` }
       })
       const data = await res.json()
@@ -149,7 +149,7 @@ export default function AdminPage() {
   const handleDelete = async () => {
     if (!confirm) return
     try {
-      await fetch(`${BASE_URL}/admin/usuarios/${confirm.id}`, {
+      await fetch(`${BASE_URL}/api/admin/usuarios/${confirm.id}/`, {
         method:  'DELETE',
         headers: { 'Authorization': `Bearer ${getToken()}` }
       })
@@ -163,7 +163,7 @@ export default function AdminPage() {
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      await fetch(`${BASE_URL}/admin/usuarios/${userId}/role`, {
+      await fetch(`${BASE_URL}/api/admin/usuarios/${userId}/rol/`, {
         method:  'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
         body:    JSON.stringify({ role: newRole })

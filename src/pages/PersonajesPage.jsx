@@ -30,7 +30,7 @@ export default function PersonajesPage() {
   useEffect(() => {
     async function fetchPlayers() {
       try {
-        const res  = await fetch(`${BASE_URL}/jugadores`)
+        const res = await fetch(`${BASE_URL}/api/personajes/?limit=1000`)
         const data = await res.json()
         setCharacters(data)
       } catch (error) {
@@ -43,26 +43,20 @@ export default function PersonajesPage() {
   }, [])
 
   const filtered = useMemo(() => {
-    let result = characters.filter(c => {
-      const q = search.toLowerCase()
-
-      const seasonMatch = !seasonFilter
-        || (Array.isArray(c.seasons) ? c.seasons.includes(seasonFilter) : c.season === seasonFilter)
-
-      return (
-        (!search         || c.name.toLowerCase().includes(q) || (c.japaneseName || '').toLowerCase().includes(q)) &&
-        (!elementFilter  || c.element  === elementFilter)  &&
-        (!positionFilter || c.position === positionFilter) &&
-        (!genderFilter   || c.gender   === genderFilter)   &&
-        (!natureFilter   || c.nature   === natureFilter)   &&
-        (!roleFilter     || c.role     === roleFilter)     &&
-        seasonMatch
-      )
-    })
-    return sortBy === 'power'
-      ? [...result].sort((a, b) => b.power - a.power)
-      : [...result].sort((a, b) => a.name.localeCompare(b.name))
-  }, [characters, search, elementFilter, positionFilter, genderFilter, natureFilter, roleFilter, seasonFilter, sortBy])
+  let result = characters.filter(c => {
+    const q = search.toLowerCase()
+    return (
+      (!search         || c.nombre.toLowerCase().includes(q)) &&
+      (!elementFilter  || c.elemento  === elementFilter)  &&
+      (!positionFilter || c.posicion  === positionFilter) &&
+      (!genderFilter   || c.sexo      === (genderFilter === 'Masculino' ? 'M' : 'F')) &&
+      (!natureFilter   || c.naturaleza === natureFilter)
+    )
+  })
+  return sortBy === 'power'
+    ? [...result].sort((a, b) => b.poder - a.poder)
+    : [...result].sort((a, b) => a.nombre.localeCompare(b.nombre))
+}, [characters, search, elementFilter, positionFilter, genderFilter, natureFilter, sortBy])
 
   const activeCount = [elementFilter, positionFilter, genderFilter, natureFilter, roleFilter, seasonFilter].filter(Boolean).length
 

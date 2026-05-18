@@ -54,7 +54,7 @@ export default function RegistroPage() {
     if (!isFormValid) return
     setLoading(true); setApiError('')
     try {
-      const res  = await fetch(`${BASE_URL}/registrar`, {
+      const res  = await fetch(`${BASE_URL}/api/registro/`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: fields.username, email: fields.email,

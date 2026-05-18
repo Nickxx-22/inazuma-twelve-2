@@ -25,10 +25,10 @@ function CharacterPickerModal({ slotIndex, slotPosition, usedIds, characters, on
       const charId = c._id || c.id;
       if (usedIds.includes(charId)) return false;
       const q = search.toLowerCase();
-      return (!search || c.name.toLowerCase().includes(q)) &&
-             (!elFilter || c.element === elFilter) &&
+      return (!search || c.nombre.toLowerCase().includes(q)) &&
+             (!elFilter || c.elemento === elFilter) &&
              (!posFilter || c.position === posFilter);
-    }).sort((a, b) => (b.power || 0) - (a.power || 0));
+    }).sort((a, b) => (b.poder || 0) - (a.poder || 0));
   }, [characters, usedIds, search, elFilter, posFilter]);
 
   return (
@@ -66,18 +66,18 @@ function CharacterPickerModal({ slotIndex, slotPosition, usedIds, characters, on
           )}
           {available.map(char => (
             <div key={char._id || char.id} className={styles.pickerRow} onClick={() => onSelect(slotIndex, char._id || char.id)}>
-              <div className={styles.pickerAvatarWrapper} style={{ borderLeft: `3px solid ${getElementColor(char.element)}` }}>
+              <div className={styles.pickerAvatarWrapper} style={{ borderLeft: `3px solid ${getElementColor(char.elemento)}` }}>
                 <img src={imgUrl(char.image)} alt="" className={styles.pickerAvatarImg} />
               </div>
               <div className={styles.pickerInfo}>
-                <span className={styles.pickerName}>{char.name}</span>
+                <span className={styles.pickerName}>{char.nombre}</span>
                 <span className={styles.pickerMeta}>
                   <span className={styles.posChip}>{char.position}</span>
-                  <span className={styles.elChip} style={{ color: getElementColor(char.element) }}>{char.element?.toUpperCase()}</span>
+                  <span className={styles.elChip} style={{ color: getElementColor(char.elemento) }}>{char.elemento?.toUpperCase()}</span>
                 </span>
               </div>
               <div className={styles.pickerPower}>
-                <span className={styles.pwrVal}>{char.power}</span>
+                <span className={styles.pwrVal}>{char.poder}</span>
                 <span className={styles.pwrLabel}>PWR</span>
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function MiEquipoPage() {
   const totalPower = slots.reduce((sum, slot) => {
     const c = characters.find(ch => (ch._id === slot.characterId || ch.id === slot.characterId));
     if (!c) return sum;
-    let p = c.power || 0;
+    let p = c.poder || 0;
     if (c.relation === 'heredero') p *= 0.5;
     if (c.isCopy) p *= 0.3;
     return sum + p;
@@ -358,14 +358,14 @@ export default function MiEquipoPage() {
                 >
                   {char ? (
                     <div className={styles.playerCard}>
-                      <div className={styles.avatarCircle} style={{ borderColor: getElementColor(char.element) }}>
-                        <img src={imgUrl(char.image)} alt={char.name} />
+                      <div className={styles.avatarCircle} style={{ borderColor: getElementColor(char.elemento) }}>
+                        <img src={imgUrl(char.image)} alt={char.nombre} />
                       </div>
                       <button className={styles.remove} onClick={(e) => handleRemoveCharacter(i, e)}>
                         <X size={10} />
                       </button>
-                      <div className={styles.nameTag}>{char.name.split(' ')[0]}</div>
-                      <div className={styles.posTag} style={{ background: getElementColor(char.element) }}>
+                      <div className={styles.nameTag}>{char.nombre.split(' ')[0]}</div>
+                      <div className={styles.posTag} style={{ background: getElementColor(char.elemento) }}>
                         {slot.position.substring(0, 2).toUpperCase()}
                       </div>
                     </div>
@@ -412,8 +412,8 @@ export default function MiEquipoPage() {
                   <span className={styles.slotPosLabel}>{slot.position.substring(0, 3).toUpperCase()}</span>
                   {char ? (
                     <>
-                      <span className={styles.slotCharName}>{char.name.split(' ')[0]}</span>
-                      <span className={styles.slotCharPwr} style={{ color: getElementColor(char.element) }}>{char.power}</span>
+                      <span className={styles.slotCharName}>{char.nombre.split(' ')[0]}</span>
+                      <span className={styles.slotCharPwr} style={{ color: getElementColor(char.elemento) }}>{char.poder}</span>
                     </>
                   ) : (
                     <span className={styles.slotEmpty}>—</span>

@@ -20,8 +20,8 @@ const STAT_KEYS = [
 ]
 
 export default function CharacterListItem({ character }) {
-  const elColor  = getElementColor(character.element)
-  const natColor = getNatureColor(character.nature)
+  const elColor  = getElementColor(character.elemento)
+  const natColor = getNatureColor(character.naturaleza)
   const tierColor = TIER_COLORS[character.tier] || '#94a3b8'
   const stats = character.stats || {}
 
@@ -31,14 +31,14 @@ export default function CharacterListItem({ character }) {
       {/* Avatar */}
       <div className={styles.avatarWrap} style={{ background: `linear-gradient(135deg, ${elColor}33, ${natColor}22)` }}>
         {character.image
-          ? <img src={imgUrl(character.image)} alt={character.name} className={styles.avatarImg} />
-          : <span className={styles.avatarFallback} style={{ background: `linear-gradient(135deg, ${elColor}, ${natColor})` }}>{character.name.charAt(0)}</span>
+          ? <img src={imgUrl(character.image)} alt={character.nombre} className={styles.avatarImg} />
+          : <span className={styles.avatarFallback} style={{ background: `linear-gradient(135deg, ${elColor}, ${natColor})` }}>{character.nombre.charAt(0)}</span>
         }
       </div>
 
       {/* Nombre + japonés */}
       <div className={styles.nameBlock}>
-        <span className={styles.name}>{character.name}</span>
+        <span className={styles.name}>{character.nombre}</span>
         <span className={styles.jaName}>{character.japaneseName}</span>
       </div>
 
@@ -53,14 +53,14 @@ export default function CharacterListItem({ character }) {
       {/* Elemento */}
       <div className={styles.elCol}>
         {character.elementImg
-          ? <img src={imgUrl(character.elementImg)} alt={character.element} className={styles.elImg} title={character.element} />
-          : <span className={styles.elBadge} style={{ background: elColor }}>{character.element}</span>
+          ? <img src={imgUrl(character.elementImg)} alt={character.elemento} className={styles.elImg} title={character.elemento} />
+          : <span className={styles.elBadge} style={{ background: elColor }}>{character.elemento}</span>
         }
       </div>
 
       {/* Naturaleza */}
       <div className={styles.natCol}>
-        <span className={styles.natBadge} style={{ background: natColor }}>{character.nature}</span>
+        <span className={styles.natBadge} style={{ background: natColor }}>{character.naturaleza}</span>
       </div>
 
       {/* Tier */}
@@ -84,7 +84,7 @@ export default function CharacterListItem({ character }) {
 
       {/* PWR total */}
       <div className={styles.power}>
-        <span style={{ color: elColor }}>{character.power}</span>
+        <span style={{ color: elColor }}>{character.poder}</span>
         <small>PWR</small>
       </div>
     </Link>

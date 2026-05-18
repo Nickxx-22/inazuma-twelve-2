@@ -67,7 +67,7 @@ export function useMyTeam(characters = []) {
     const c = characters.find(ch => (ch.id === slot.characterId || ch._id === slot.characterId));
     if (!c) return sum;
 
-    let pwr = c.power || 0;
+    let pwr = c.poder || 0;
     
     // Aplicar modificador heredero: 0.5 [cite: 2026-02-27]
     if (c.relation === 'heredero') pwr *= 0.5;
