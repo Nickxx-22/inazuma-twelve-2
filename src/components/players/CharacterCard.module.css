@@ -1,0 +1,98 @@
+.link { text-decoration: none; display: block; }
+
+.card {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  overflow: hidden;
+  animation: fadeInUp 280ms ease both;
+}
+
+.imageArea {
+  position: relative; width: 100%; aspect-ratio: 1 / 1;
+  overflow: hidden; background-color: #1a1a2e;
+}
+.characterImage {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+  image-rendering: pixelated; z-index: 1; transition: transform 0.5s ease;
+}
+.card:hover .characterImage { transform: scale(1.07); }
+.overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 2; pointer-events: none;
+}
+
+.natureBadge {
+  position: absolute; top: 8px; left: 8px; z-index: 3;
+  padding: 3px 7px; border-radius: 6px;
+  font-size: 0.58rem; font-weight: 800; color: #fff;
+  white-space: nowrap; line-height: 1.4;
+}
+.positionBadge {
+  position: absolute; top: 6px; right: 8px; z-index: 3;
+}
+.positionImg {
+  width: 34px; height: 34px; object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.9));
+}
+.positionText {
+  background: var(--primary); padding: 3px 7px; border-radius: 6px;
+  font-size: 0.58rem; font-weight: 800; color: #fff; line-height: 1.4;
+}
+
+/* ── INFO ── */
+.info { padding: 6px 10px 8px; }
+
+/* nombre + PWR en la misma fila */
+.nameRow {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 6px;
+  margin-bottom: 4px;
+}
+.name {
+  font-size: 0.75rem; font-weight: 700; color: var(--foreground);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: color 150ms; flex: 1; min-width: 0;
+}
+.card:hover .name { color: var(--primary); }
+.powerBadge {
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  padding: 2px 5px; border-radius: 5px;
+  font-size: 0.55rem; font-weight: 800; color: var(--foreground);
+  border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+}
+
+/* fila inferior: role+país izq, iconos der */
+.bottomRow {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 4px;
+}
+.roleCol {
+  display: flex; flex-direction: column; gap: 1px;
+  font-size: 0.55rem; color: var(--muted);
+  min-width: 0; flex: 1; overflow: hidden;
+}
+.roleText { flex-shrink: 0; }
+.countryText { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.iconsRow { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+.elementImg {
+  width: 18px; height: 18px; object-fit: contain;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
+}
+.elementDot {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.55rem; font-weight: 800; color: #fff;
+}
+.flagBadge {
+  width: 18px; height: 12px; object-fit: cover; border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
