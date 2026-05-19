@@ -9,29 +9,28 @@ const TIER_COLORS = {
 }
 
 const STAT_KEYS = [
-  { key: 'kicking',      label: 'TIR' },
+  { key: 'remate',       label: 'TIR' },
   { key: 'control',      label: 'CON' },
-  { key: 'technique',    label: 'TEC' },
-  { key: 'pressure',     label: 'PRE' },
-  { key: 'physique',     label: 'FIS' },
-  { key: 'agility',      label: 'AGI' },
-  { key: 'intelligence', label: 'INT' },
-  { key: 'defense',      label: 'DEF' },
+  { key: 'tecnica',      label: 'TEC' },
+  { key: 'presion',      label: 'PRE' },
+  { key: 'fisico',       label: 'FIS' },
+  { key: 'agilidad',     label: 'AGI' },
+  { key: 'inteligencia', label: 'INT' },
+  { key: 'defensa',      label: 'DEF' },
 ]
 
 export default function CharacterListItem({ character }) {
   const elColor  = getElementColor(character.elemento)
   const natColor = getNatureColor(character.naturaleza)
   const tierColor = TIER_COLORS[character.tier] || '#94a3b8'
-  const stats = character.stats || {}
 
   return (
     <Link to={`/personajes/${character.id}`} className={`${styles.row} card-hover`}>
 
       {/* Avatar */}
       <div className={styles.avatarWrap} style={{ background: `linear-gradient(135deg, ${elColor}33, ${natColor}22)` }}>
-        {character.image
-          ? <img src={imgUrl(character.image)} alt={character.nombre} className={styles.avatarImg} />
+        {character.imagen
+          ? <img src={imgUrl(character.imagen)} alt={character.nombre} className={styles.avatarImg} />
           : <span className={styles.avatarFallback} style={{ background: `linear-gradient(135deg, ${elColor}, ${natColor})` }}>{character.nombre.charAt(0)}</span>
         }
       </div>
@@ -76,7 +75,7 @@ export default function CharacterListItem({ character }) {
       <div className={styles.statsRow}>
         {STAT_KEYS.map(({ key, label }) => (
           <div key={key} className={styles.statCell}>
-            <span className={styles.statVal}>{stats[key] ?? '—'}</span>
+            <span className={styles.statVal}>{character[key] ?? '—'}</span>
             <span className={styles.statLbl}>{label}</span>
           </div>
         ))}

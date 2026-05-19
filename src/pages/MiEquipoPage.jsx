@@ -27,7 +27,7 @@ function CharacterPickerModal({ slotIndex, slotPosition, usedIds, characters, on
       const q = search.toLowerCase();
       return (!search || c.nombre.toLowerCase().includes(q)) &&
              (!elFilter || c.elemento === elFilter) &&
-             (!posFilter || c.position === posFilter);
+             (!posFilter || c.posicion === posFilter);
     }).sort((a, b) => (b.poder || 0) - (a.poder || 0));
   }, [characters, usedIds, search, elFilter, posFilter]);
 
@@ -67,7 +67,7 @@ function CharacterPickerModal({ slotIndex, slotPosition, usedIds, characters, on
           {available.map(char => (
             <div key={char._id || char.id} className={styles.pickerRow} onClick={() => onSelect(slotIndex, char._id || char.id)}>
               <div className={styles.pickerAvatarWrapper} style={{ borderLeft: `3px solid ${getElementColor(char.elemento)}` }}>
-                <img src={imgUrl(char.image)} alt="" className={styles.pickerAvatarImg} />
+                <img src={imgUrl(char.imagen)} alt="" className={styles.pickerAvatarImg} />
               </div>
               <div className={styles.pickerInfo}>
                 <span className={styles.pickerName}>{char.nombre}</span>
@@ -133,52 +133,46 @@ export default function MiEquipoPage() {
   const [slots, setSlots] = useState(FORMATION.map(s => ({ ...s, characterId: null })));
 
   useEffect(() => {
-    let cancelled = false;
-
     async function loadData() {
-      const userId = getUserId(user);
-      if (!userId) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        setLoading(true);
-        const [players, userRes] = await Promise.all([
-          getAllPlayers(),
-          fetch(`${BASE_URL}/obtener_usuario/${userId}`)
-        ]);
+        const token = localStorage.getItem('inazuma-token')
 
-        if (cancelled) return; 
+        // Cargar jugadores
+        const playersRes = await fetch(`${BASE_URL}/api/personajes/?limit=1000`)
+        const playersData = await playersRes.json()
+        setCharacters(Array.isArray(playersData) ? playersData : playersData.results || [])
 
-        setCharacters(players);
-        const data = await userRes.json();
-
-        if (userRes.ok && data.usuario?.equipos) {
-          const fetchedEquipos = data.usuario.equipos;
-          setMisEquipos(fetchedEquipos);
-
-          const nombres = Object.keys(fetchedEquipos);
-          if (nombres.length > 0) {
-            const primerNombre = nombres[0];
-            setEquipoSeleccionado(primerNombre);
-            setNombreTemp(primerNombre);
-            const ids = fetchedEquipos[primerNombre];
-            setSlots(FORMATION.map((s, i) => ({ ...s, characterId: ids[i] || null })));
+        // Cargar equipos guardados del usuario
+        if (token) {
+          const equiposRes = await fetch(`${BASE_URL}/api/mis-equipos/`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+          if (equiposRes.ok) {
+            const equiposData = await equiposRes.json()
+            setMisEquipos(equiposData)
+            const nombres = Object.keys(equiposData)
+            if (nombres.length > 0) {
+              const primerNombre = nombres[0]
+              setEquipoSeleccionado(primerNombre)
+              setNombreTemp(primerNombre)
+              const slots_guardados = equiposData[primerNombre]
+              if (Array.isArray(slots_guardados)) {
+                setSlots(prev => prev.map((s, i) => ({
+                  ...s,
+                  characterId: slots_guardados[i]?.characterId || null
+                })))
+              }
+            }
           }
         }
-      } catch (e) {
-        console.error("Error cargando datos:", e);
+      } catch (err) {
+        console.error('Error cargando datos:', err)
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false)
       }
     }
-
-    loadData();
-
-    return () => { cancelled = true; };
-
-  }, [user]);
+    loadData()
+  }, [user])
 
   const handleSelectTeam = (nombre) => {
     setEquipoSeleccionado(nombre);
@@ -198,11 +192,17 @@ export default function MiEquipoPage() {
     setIsSaving(true);
     const equipoIds = slots.map(s => s.characterId);
     try {
-      const res = await fetch(`${BASE_URL}/guardar_equipo`, {
+      const res = await fetch(`${BASE_URL}/api/mis-equipos/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, equipo: equipoIds, nombre_equipo: nombreTemp })
-      });
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('inazuma-token')}`
+        },
+        body: JSON.stringify({
+          nombre_equipo: nombreTemp,
+          equipo: slots
+        })
+      })
       if (res.ok) {
         setMisEquipos(prev => ({ ...prev, [nombreTemp]: equipoIds }));
         setEquipoSeleccionado(nombreTemp);
@@ -219,11 +219,14 @@ export default function MiEquipoPage() {
     if (!window.confirm(`¿Eliminar el equipo "${equipoSeleccionado}"?`)) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`${BASE_URL}/eliminar_equipo`, {
+      const res = await fetch(`${BASE_URL}/api/mis-equipos/`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, nombre_equipo: equipoSeleccionado })
-      });
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('inazuma-token')}`
+        },
+        body: JSON.stringify({ nombre_equipo: equipoSeleccionado })
+      })
       if (res.ok) {
         const nuevos = { ...misEquipos };
         delete nuevos[equipoSeleccionado];
@@ -359,7 +362,7 @@ export default function MiEquipoPage() {
                   {char ? (
                     <div className={styles.playerCard}>
                       <div className={styles.avatarCircle} style={{ borderColor: getElementColor(char.elemento) }}>
-                        <img src={imgUrl(char.image)} alt={char.nombre} />
+                        <img src={imgUrl(char.imagen)} alt={char.nombre} />
                       </div>
                       <button className={styles.remove} onClick={(e) => handleRemoveCharacter(i, e)}>
                         <X size={10} />

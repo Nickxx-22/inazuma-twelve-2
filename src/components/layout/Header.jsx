@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { LogIn, LogOut } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { logoutUser } from '../../services/authService'
-import logoImg from '../img/inazuma_japon.png'
+import logoImg from '../../assets/inazuma_japon.png'
 import styles from './Header.module.css'
 
 const NAV_ITEMS_USER = [

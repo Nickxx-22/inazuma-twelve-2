@@ -12,13 +12,13 @@ export default function CharacterCard({ character }) {
       <div className={`${styles.card} card-hover`}>
 
         <div className={styles.imageArea}>
-          <img src={imgUrl(character.image)} alt={character.nombre} className={styles.characterImage} />
+          <img src={imgUrl(character.imagen)} alt={character.nombre} className={styles.characterImage} />
           <div className={styles.overlay} style={{ background: `linear-gradient(135deg, ${elColor}22, ${natColor}22)` }} />
           <span className={styles.natureBadge} style={{ background: natColor }}>{character.naturaleza}</span>
           <div className={styles.positionBadge}>
             {character.positionImg
-              ? <img src={imgUrl(character.positionImg)} alt={character.position} className={styles.positionImg} title={character.position} />
-              : <span className={styles.positionText}>{character.position}</span>
+              ? <img src={imgUrl(character.positionImg)} alt={character.posicion} className={styles.positionImg} title={character.posicion} />
+              : <span className={styles.positionText}>{character.posicion}</span>
             }
           </div>
         </div>
@@ -28,6 +28,7 @@ export default function CharacterCard({ character }) {
           <div className={styles.nameRow}>
             <h3 className={styles.name}>{character.nombre}</h3>
             <div className={styles.powerBadge}>PWR {character.poder}</div>
+          </div>
           <div className={styles.bottomRow}>
             <div className={styles.roleCol}>
               <span className={styles.roleText}>{character.role}</span>
