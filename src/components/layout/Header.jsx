@@ -12,6 +12,7 @@ const NAV_ITEMS_USER = [
   { href: '/tecnicas',   label: 'Tecnicas',  accent: '#f59e0b' },
   { href: '/equipos',    label: 'Equipos',   accent: '#f471b5' },
   { href: '/mi-equipo',  label: 'Mi Equipo', accent: '#a78bfa' },
+  { href: '/torneo',     label: 'Torneo',    accent: '#ff6b35' },
 ]
 
 const NAV_ITEMS_ADMIN = [

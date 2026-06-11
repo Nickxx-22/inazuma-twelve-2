@@ -9,6 +9,7 @@ import MiEquipoPage from './pages/MiEquipoPage'
 import LoginPage from './pages/LoginPage'
 import RegistroPage from './pages/RegistroPage'
 import AdminPage from './pages/AdminPage'
+import TorneoPage from './pages/TorneoPage'
 
 function PrivateRoute({ children }) {
   const user = localStorage.getItem('inazuma-user')
@@ -35,6 +36,9 @@ export default function App() {
           <Route path="equipos" element={<EquiposPage />} />
           <Route path="mi-equipo" element={
             <PrivateRoute><MiEquipoPage /></PrivateRoute>
+          } />
+          <Route path="torneo" element={
+            <PrivateRoute><TorneoPage /></PrivateRoute>
           } />
           <Route path="admin" element={
             <AdminRoute><AdminPage /></AdminRoute>
